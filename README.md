@@ -85,13 +85,12 @@ oc apply -f gateway/kubernetes/service-mesh-gw.yaml -n $OCP_TUTORIAL_PROJECT
 ## Deploy the catalog-v2 service
 ```
 oc create -f ./catalog-v2/kubernetes/catalog-service-template.yml -n $OCP_TUTORIAL_PROJECT
-oc create -f ./catalog-v2/kubernetes/Service.yml -n $OCP_TUTORIAL_PROJECT
 ```
 
 ## Verify OpenShift round-robin load-balancing
 ```
 export GATEWAY_URL=$(oc -n istio-system get route istio-ingressgateway -o jsonpath='{.spec.host}')
-for i in $(1.10) ; do curl $GATEWAY_URL; sleep 1; done
+for i in $(seq 50) ; do curl  $GATEWAY_URL; sleep 1 ; done
 ```
 
 ## View catalog deployment
@@ -100,9 +99,8 @@ oc describe service catalog -n $OCP_TUTORIAL_PROJECT | grep Selector
 oc get deploy catalog-v1 -o json -n $OCP_TUTORIAL_PROJECT | jq .spec.template.metadata.labels
 ```
 
-## Route All Traffic to v2
-oc apply -f   ./istiofiles/destination-rule-catalog-v1-v2.yml
-oc apply -f   ./virtual-service-catalog-v2.yml -n $OCP_TUTORIAL_PROJECT
-
-### Route 90%/10% of the traffic
-oc apply -f istiofiles/virtual-service-catalog-v1_and_v2.yml
+## Route All Traffic 90/10
+```
+oc apply -f ./istiofiles/destination-rule-catalog-v1-v2.yml
+oc apply -f ./istiofiles/virtual-service-catalog-v1_and_v2.yml
+```
